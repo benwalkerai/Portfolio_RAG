@@ -3,10 +3,12 @@ import json
 import sys
 import os
 
+
 # Add root folder to python path so we can import 'rag'
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-I
+from rag.store import get_vector_store
+
 def run_eval():
     store = get_vector_store()
     retriever = store.as_retriever(search_kwargs={"k":4})

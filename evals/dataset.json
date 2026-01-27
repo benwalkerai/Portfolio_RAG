@@ -6,7 +6,7 @@
     {
         "question": "Who is the lead engineer?",
         "expected_phrase": "Ben Walker"
-    }
+    },
     {
         "question": "What is the budget for Q1?",
         "expected_phrase": "£50,000"
