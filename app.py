@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
+from rag.store import get_vector_store as _get_vector_store_logic
 
 # Load environment variables
 load_dotenv()
@@ -16,24 +17,7 @@ st.title("Ragbot")
 # Cached Resources
 @st.cache_resource
 def get_vector_store():
-    qdrant_url = os.getenv("QDRANT_URL")
-    collection_name = os.getenv("QDRANT_COLLECTION_NAME")
-    embedding_model = os.getenv("EMBEDDING_MODEL_NAME")
-    base_url = os.getenv("OPENAI_BASE_URL")
-
-    embeddings = OpenAIEmbeddings(
-        model=embedding_model,
-        openai_api_base=base_url,
-        check_embedding_ctx_length=False
-    )
-
-    client = QdrantClient(url=qdrant_url)
-
-    return QdrantVectorStore(
-        client=client,
-        collection_name=collection_name,
-        embedding=embeddings,
-    )
+    return _get_vector_store_logic()
 
 @st.cache_resource
 def get_llm():
