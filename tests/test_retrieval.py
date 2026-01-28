@@ -1,22 +1,19 @@
-# Import modules
 import pytest
 import os
+from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import QdrantVectorStore
 from qdrant_client import QdrantClient
 from qdrant_client.http.models import Distance, VectorParams
-from dotenv import load_dotenv
 
-# Load environment variables
 load_dotenv()
 
-# Constants
 TEST_COLLECTION = "test_portfolio_retrieval"
 QDRANT_URL = os.getenv("QDRANT_URL")
 
 @pytest.fixture
 def vector_store():
-    """Setup: Create a clean vector store for test."""
+    """Setup: Create a clean vector store for testing."""
     client = QdrantClient(url=QDRANT_URL)
 
     if client.collection_exists(TEST_COLLECTION):
@@ -42,18 +39,12 @@ def vector_store():
 
     yield store
 
-    # Cleanup after test
     client.delete_collection(TEST_COLLECTION)
 
 def test_retrieval_golden_path(vector_store):
     """
-    The Golden Path:
-    1. Ingest a known 'needle' fact.
-    2. Query for it
-    3. Assert it is retrieved
+    Verifies that a specific 'needle' fact can be retrieved by an exact query.
     """
-
-    # Ingest
     needle_text = "The project code name is Project Blueberry."
     meta = {"source": "secret_memo.txt", "chunk_index": 0}
 
@@ -62,19 +53,11 @@ def test_retrieval_golden_path(vector_store):
         metadatas=[meta]
     )
 
-    # Retrieve
-    retriever = vector_store.as_retriever(search_kqargs={"k": 1})
+    retriever = vector_store.as_retriever(search_kwargs={"k": 1})
     results = retriever.invoke("What is the code name?")
 
-    # Assert
     assert len(results) > 0, "Retriever returned no results"
     top_result = results[0]
 
-    print(f"\nRetrieved: {top_result.page_content}")
-
     assert "Blueberry" in top_result.page_content
     assert top_result.metadata["source"] == "secret_memo.txt"
-
-
-def test_sanity():
-    assert 1+1 == 2
