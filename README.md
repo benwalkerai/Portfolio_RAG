@@ -1,6 +1,5 @@
-# Portfolio RAG 🤖
+# Portfolio RAG
 
-![CI Status](https://github.com/benwalkerai/Portfolio_RAG/actions/workflows/ci.yml/badge.svg)
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
 ![Stack](https://img.shields.io/badge/Stack-LangChain_|_Qdrant_|_Streamlit-purple)
 
