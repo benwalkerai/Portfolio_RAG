@@ -1,20 +1,14 @@
-# Import Modules
 import streamlit as st
 import os
 from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI, OpenAIEmbeddings
-from langchain_qdrant import QdrantVectorStore
-from qdrant_client import QdrantClient
+from langchain_openai import ChatOpenAI
 from rag.store import get_vector_store as _get_vector_store_logic
 
-# Load environment variables
 load_dotenv()
 
-# Page configuration
 st.set_page_config(page_title="Portfolio RAG", layout="centered")
 st.title("Ragbot")
 
-# Cached Resources
 @st.cache_resource
 def get_vector_store():
     return _get_vector_store_logic()
@@ -22,27 +16,24 @@ def get_vector_store():
 @st.cache_resource
 def get_llm():
     return ChatOpenAI(
-        model=os.getenv("LLM_MODEL_NAME"),
+        model=os.getenv("LLM_MODEL_NAME", "gpt-3.5-turbo"),
         temperature=0.7,
         openai_api_base=os.getenv("OPENAI_BASE_URL"),
         api_key=os.getenv("OPENAI_API_KEY", "dummy")
     )
 
-# Session state
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Chat History Display
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
-        if "citations" in message and message["citations"]:
+        if message.get("citations"):
             with st.expander("Sources"):
                 for cite in message["citations"]:
                     st.markdown(f"**{cite['source']}**")
                     st.caption(cite['content'][:200] + "...")
 
-# Chat Input & Processing
 if prompt := st.chat_input("Ask a question about your docs..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
@@ -51,7 +42,6 @@ if prompt := st.chat_input("Ask a question about your docs..."):
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
     
-    # Retrieve
     vector_store = get_vector_store()
     retriever = vector_store.as_retriever(search_kwargs={"k": 4})
     docs = retriever.invoke(prompt)
@@ -63,7 +53,6 @@ if prompt := st.chat_input("Ask a question about your docs..."):
     {context_text}
     """
 
-    # Generation
     llm = get_llm()
     response = llm.invoke([
         {"role": "system", "content": system_prompt},
@@ -73,7 +62,6 @@ if prompt := st.chat_input("Ask a question about your docs..."):
     answer = response.content
     message_placeholder.markdown(answer)
 
-    # Format Citations
     citations = []
     for doc in docs:
         citations.append({
@@ -82,13 +70,11 @@ if prompt := st.chat_input("Ask a question about your docs..."):
             "content": doc.page_content
         })
 
-
     with st.expander("Sources"):
         for cite in citations:
             st.markdown(f"**{cite['source']}** (Chunk {cite['chunk_index']})")
             st.caption(cite['content'][:200] + "...")
 
-    # Save to history
     st.session_state.messages.append({
         "role": "assistant",
         "content": answer,
