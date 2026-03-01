@@ -61,7 +61,7 @@ def run_ingestion(path: str, recreate: bool):
             client.delete_collection(collection_name)
         client.create_collection(
             collection_name=collection_name,
-            vectors_config=VectorParams(size=768, distance=Distance.COSINE)
+            vectors_config=VectorParams(size=768, distance=Distance.COSINE) # Assuming 768-dimensional embeddings, adjust if using a different model
         )
     
     QdrantVectorStore.from_documents(

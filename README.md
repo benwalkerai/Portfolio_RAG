@@ -51,6 +51,11 @@ If you are on Windows, use the helper script:
 ```
 *This will ingest the sample data, run the evaluation suite to verify quality, and launch the Streamlit app.*
 
+If you are on Linux/Mac, use the bash script:
+```bash
+./run_demo.sh
+```
+
 ## Evaluation & Testing
 
 Reliability is key. This repo includes:
