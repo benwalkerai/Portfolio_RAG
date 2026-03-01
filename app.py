@@ -16,8 +16,8 @@ def get_vector_store():
 @st.cache_resource
 def get_llm():
     return ChatOpenAI(
-        model=os.getenv("LLM_MODEL_NAME", "gpt-3.5-turbo"),
-        temperature=0.7,
+        model=os.getenv("LLM_MODEL_NAME", "gpt-4o-mini"),
+        temperature=0,
         openai_api_base=os.getenv("OPENAI_BASE_URL"),
         api_key=os.getenv("OPENAI_API_KEY", "dummy")
     )

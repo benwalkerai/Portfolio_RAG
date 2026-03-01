@@ -2,7 +2,6 @@ import json
 import sys
 import os
 
-# Ensure root folder is in python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from rag.store import get_vector_store
