@@ -41,35 +41,46 @@ def run_ingestion(path: str, recreate: bool):
         chunk.metadata["doc_id"] = str(uuid.uuid5(uuid.NAMESPACE_DNS, source))
         chunk.metadata["chunk_index"] = i
 
-    model_name = os.getenv("EMBEDDING_MODEL_NAME", "nomic-embed-text")
-    base_url = os.getenv("OPENAI_BASE_URL")
+    model_name = os.getenv("EMBEDDING_MODEL_NAME", "text-embedding-3-small")
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY environment variable is not set")
 
     embeddings = OpenAIEmbeddings(
         model=model_name,
-        openai_api_base=base_url,
-        api_key=os.getenv("OPENAI_API_KEY"),
+        api_key=api_key,
         check_embedding_ctx_length=False
     )
 
-    qdrant_url = os.getenv("QDRANT_URL", "http://localhost:6333")
     collection_name = os.getenv("QDRANT_COLLECTION_NAME", "portfolio_docs")
+    use_local_storage = os.getenv("QDRANT_IN_MEMORY", "false").lower() == "true"
 
-    client = QdrantClient(url=qdrant_url)
+    # Create appropriate client based on configuration
+    if use_local_storage:
+        # Create storage directory if it doesn't exist
+        storage_path = "./qdrant_storage"
+        os.makedirs(storage_path, exist_ok=True)
+        client = QdrantClient(path=storage_path)
+    else:
+        qdrant_url = os.getenv("QDRANT_URL", "http://localhost:6333")
+        client = QdrantClient(url=qdrant_url)
 
     if recreate:
         if client.collection_exists(collection_name):
             client.delete_collection(collection_name)
+    
+    if not client.collection_exists(collection_name):
         client.create_collection(
             collection_name=collection_name,
-            vectors_config=VectorParams(size=768, distance=Distance.COSINE) # Assuming 768-dimensional embeddings, adjust if using a different model
+            vectors_config=VectorParams(size=1536, distance=Distance.COSINE)
         )
     
-    QdrantVectorStore.from_documents(
-        chunks,
-        embeddings,
-        url=qdrant_url,
+    vector_store = QdrantVectorStore(
+        client=client,
         collection_name=collection_name,
+        embedding=embeddings,
     )
+    vector_store.add_documents(chunks)
     print(f"Successfully indexed {len(chunks)} chunks from {path}")
 
 if __name__ == "__main__":

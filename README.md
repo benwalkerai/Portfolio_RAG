@@ -3,6 +3,8 @@
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
 ![Stack](https://img.shields.io/badge/Stack-LangChain_|_Qdrant_|_Streamlit-purple)
 
+![Screenshot](docs/screenshot.png)
+
 A production-ready RAG (Retrieval Augmented Generation) pipeline that enables chatting with custom documents. This project demonstrates **clean architecture**, **automated evaluation**, and **reproducible infrastructure** for AI engineering.
 
 ## Features
