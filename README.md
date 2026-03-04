@@ -1,6 +1,7 @@
 # Portfolio RAG
 
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
 ![Stack](https://img.shields.io/badge/Stack-LangChain_|_Qdrant_|_Streamlit-purple)
 
 ![Screenshot](docs/screenshot.png)
